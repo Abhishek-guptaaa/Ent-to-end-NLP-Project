@@ -7,10 +7,10 @@ tensorflow==2.9.2
 regex
 scikit-learn
 from-root
-google-cloud-storage
 fastapi==0.78.0
 uvicorn==0.18.3
 Jinja2==3.1.2
 python-dotenv
 pymongo
+scikit-learn
 -e .
