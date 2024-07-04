@@ -1,6 +1,6 @@
 import joblib
 from keras.models import load_model
-from keras.preprocessing.sequence import pad_sequences
+from keras.utils import pad_sequences
 from config.config import Config
 
 # Load the trained model and tokenizer
@@ -13,6 +13,7 @@ def preprocess_text(text):
     """
     sequences = tokenizer.texts_to_sequences([text])
     padded_sequences = pad_sequences(sequences, maxlen=Config.MAX_LEN)
+    print(f"Tokenized and Padded Text: {padded_sequences}")  # Debugging step
     return padded_sequences
 
 def predict(text):
@@ -22,20 +23,17 @@ def predict(text):
     processed_text = preprocess_text(text)
     prediction = model.predict(processed_text)
     pred = prediction[0][0]
-    print("pred", pred)
-    if pred > 0.5:
+    print("Prediction Score:", pred)  # Debugging step
+    if pred > 0.3:
         print("hate and abusive")
         return "hate and abusive"
     else:
         print("no hate")
         return "no hate"
 
-if __name__ == "__main__":
-    import sys
-    if len(sys.argv) > 1:
-        input_text = sys.argv[1]
-        result = predict(input_text)
-        print(f"Input: {input_text}")
-        print(f"Prediction: {result}")
-    else:
-        print("Please provide text to predict.")
+# Interactive input
+input_text = input("Enter the text to predict: ")
+result = predict(input_text)
+print(f"Input: {input_text}")
+print(f"Prediction: {result}")
+

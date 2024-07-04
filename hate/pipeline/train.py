@@ -1,3 +1,5 @@
+
+
 import sys
 import os
 import joblib
@@ -51,7 +53,8 @@ def main():
 
         # Model Evaluation
         model_evaluation = ModelEvaluation()
-        evaluation_results = model_evaluation.evaluate_model(model_training.model)
+        model_evaluation.load_model()  # Ensure model is loaded
+        evaluation_results = model_evaluation.evaluate_model()
         logging.info(f"Model evaluation results: {evaluation_results}")
 
         logging.info("NLP training pipeline completed successfully")
