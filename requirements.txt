@@ -1,9 +1,10 @@
 pandas
-numpy
+numpy==1.21.0
 seaborn
 matplotlib
 nltk
-tensorflow==2.9.2
+tensorflow==2.9.3
+keras
 regex
 scikit-learn
 from-root
