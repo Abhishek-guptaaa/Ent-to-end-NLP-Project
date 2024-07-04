@@ -28,7 +28,7 @@ def read_mongo_data():
         collection = db["hate"]  # Replace with your collection name
         
         # Fetch all documents
-        documents = list(collection.find())
+        documents = list(collection.find())  # collection.find() Yeh method MongoDB collection me se saare documents ko retrieve karta hai. 
         
         # Log data collection completion
         logging.info("Data collection completed successfully!")

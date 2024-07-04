@@ -21,7 +21,6 @@ class TextTokenization:
             joblib.dump(self.tokenizer, Config.TOKENIZER_PATH)
             logging.info(f"Tokenizer saved at {Config.TOKENIZER_PATH}")
         except Exception as e:
-            logging.error("Error in fitting tokenizer")
             raise CustomException("Error in fitting tokenizer", e)
 
     def transform_texts(self, texts):
@@ -31,12 +30,10 @@ class TextTokenization:
             sequences_matrix = pad_sequences(sequences, maxlen=Config.MAX_LEN)
             return sequences_matrix
         except Exception as e:
-            logging.error("Error in transforming texts")
             raise CustomException("Error in transforming texts", e)
 
     def load_tokenizer(self):
         try:
             self.tokenizer = joblib.load(Config.TOKENIZER_PATH)
         except Exception as e:
-            logging.error("Error in loading tokenizer")
             raise CustomException("Error in loading tokenizer", e)

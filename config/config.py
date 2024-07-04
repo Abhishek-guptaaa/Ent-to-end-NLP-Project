@@ -11,8 +11,7 @@ class Config:
     INPLACE = True
     CLASS = 'class'
     TWEET = 'tweet'
-    DATA_TRANSFORMATION_ARTIFACTS_DIR = 'data_transformation_artifacts'
-    TRANSFORMED_FILE_PATH = 'data_transformation_artifacts/transformed_data.csv'
+    
 
     MAX_WORDS = 50000
     MAX_LEN = 300

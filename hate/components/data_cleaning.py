@@ -30,7 +30,6 @@ class DataCleaning:
             text = " ".join(text)
             return text
         except Exception as e:
-            logging.info(f"Error in data cleaning: {e}")
             raise CustomException("Error in data cleaning", e)
 
     def clean_data(self, df, text_column):
