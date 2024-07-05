@@ -1,6 +1,8 @@
+
 import os
 import sys
 import pandas as pd
+from sklearn.model_selection import train_test_split
 from config.config import Config
 from hate.logger import logging
 from hate.components.data_ingestion import DataIngestion
@@ -8,8 +10,8 @@ from hate.components.data_cleaning import DataCleaning
 from hate.components.text_tokenization import TextTokenization
 from hate.components.model_training import ModelTraining
 from hate.exception import CustomException
-from keras.utils import pad_sequences
 import joblib
+
 
 def main():
     try:
@@ -36,25 +38,28 @@ def main():
         # Save cleaned data to CSV
         cleaned_data.to_csv(Config.CLEANED_DATA_PATH, index=False)
         
+        # Split the cleaned data into training and testing sets
+        X_train, X_test, y_train, y_test = train_test_split(
+            cleaned_data[Config.TWEET], cleaned_data[Config.CLASS], test_size=0.2, random_state=42)  
+        
+        # Save the test data to CSV files
+        test_data = pd.DataFrame({Config.TWEET: X_test, Config.CLASS: y_test})
+        test_data.to_csv(Config.X_TEST_PATH, index=False)
+        logging.info(f"Test data saved at {Config.X_TEST_PATH}")
+        
         # Text Tokenization 
         text_tokenization = TextTokenization()
-        text_tokenization.fit_tokenizer(cleaned_data[Config.TWEET])
-        sequences_matrix = text_tokenization.transform_texts(cleaned_data[Config.TWEET])
+        text_tokenization.fit_tokenizer(X_train)
+        sequences_matrix = text_tokenization.transform_texts(X_train)
         
         # Model Training
-        model_training = ModelTraining(sequences_matrix, cleaned_data[Config.CLASS])
+        model_training = ModelTraining(sequences_matrix, y_train)
         model_training.build_model()
-        history, (X_test, y_test) = model_training.train_model()
+        history = model_training.train_model()  # Corrected line
 
         # Save the tokenizer
         joblib.dump(text_tokenization.tokenizer, Config.TOKENIZER_PATH)
         logging.info(f"Tokenizer saved at {Config.TOKENIZER_PATH}")
-
-        # # Model Evaluation
-        # model_evaluation = ModelEvaluation()
-        # model_evaluation.load_model()
-        # evaluation_results = model_evaluation.evaluate_model()
-        # logging.info(f"Model evaluation results: {evaluation_results}")
 
         logging.info("NLP project completed successfully")
     except Exception as e:
@@ -63,8 +68,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
