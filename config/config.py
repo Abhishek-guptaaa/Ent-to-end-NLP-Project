@@ -5,6 +5,10 @@ class Config:
     TOKENIZER_PATH = 'models/tokenizer.pkl'
     MODEL_PATH = 'models/nlp_model.h5'
     LOG_PATH = 'logs/logs.log'
+    X_TEST_PATH = 'notebook/X_test.csv'
+    Y_TEST_PATH = 'notebook/y_test.csv'
+
+
 
     DROP_COLUMNS = ['id']
     AXIS = 1

@@ -1,4 +1,3 @@
-
 # import pandas as pd
 # from keras.models import Sequential
 # from keras.layers import LSTM, Dense, Embedding, SpatialDropout1D
@@ -8,7 +7,6 @@
 # from hate.logger import logging
 # from hate.exception import CustomException
 # from sklearn.model_selection import train_test_split
-# from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 # import joblib
 
 # class ModelTraining:
@@ -51,59 +49,17 @@
 #             logging.error(f"Error in training model: {e}")
 #             raise CustomException("Error in training model", e)
 
-#     def preprocess_data(self, data):
-#         # Implement preprocessing steps similar to training preprocessing
-#         # This is a placeholder function and should be adjusted to match your actual preprocessing
-#         return data
-
-#     def evaluate_model(self):
-#         try:
-#             logging.info("Starting model evaluation")
-
-#             # Load the test data from the CSV file
-#             test_data = pd.read_csv(Config.CLEANED_DATA_PATH)
-#             X_test = test_data[Config.TWEET]  # Adjust the column name
-#             y_test = test_data[Config.CLASS]  # Adjust the column name
-
-#             # Ensure the test data is preprocessed in the same way as training data
-#             X_test = self.preprocess_data(X_test)  # Implement this method
-
-#             # Load tokenizer and transform the test data
-#             tokenizer = joblib.load(Config.TOKENIZER_PATH)
-#             X_test = tokenizer.texts_to_sequences(X_test)
-#             X_test = pad_sequences(X_test, maxlen=Config.MAX_LEN)
-
-#             # Evaluate the model
-#             y_pred = self.model.predict(X_test)
-#             y_pred = (y_pred > 0.5).astype(int)
-
-#             accuracy = accuracy_score(y_test, y_pred)
-#             precision = precision_score(y_test, y_pred)
-#             recall = recall_score(y_test, y_pred)
-#             f1 = f1_score(y_test, y_pred)
-
-#             logging.info(f"Model evaluation completed. Accuracy: {accuracy}, Precision: {precision}, Recall: {recall}, F1 Score: {f1}")
-
-#             return {'accuracy': accuracy, 'precision': precision, 'recall': recall, 'f1': f1}
-#         except Exception as e:
-#             logging.error(f"Error in evaluating model: {e}")
-#             raise CustomException("Error in evaluating model", e)
-
-
-
 
 
 
 import pandas as pd
 from keras.models import Sequential
 from keras.layers import LSTM, Dense, Embedding, SpatialDropout1D
-from keras.utils import pad_sequences
 from keras.optimizers import RMSprop
+from sklearn.model_selection import train_test_split
 from config.config import Config
 from hate.logger import logging
 from hate.exception import CustomException
-from sklearn.model_selection import train_test_split
-import joblib
 
 class ModelTraining:
     def __init__(self, sequences_matrix, labels):
@@ -140,7 +96,14 @@ class ModelTraining:
             history = self.model.fit(X_train, y_train, batch_size=128, epochs=1, validation_data=(X_val, y_val))
             self.model.save(Config.MODEL_PATH)
             logging.info(f"Model training completed and saved at {Config.MODEL_PATH}")
+
+            # Save X_test and y_test as CSV files
+            pd.DataFrame(X_test).to_csv(Config.X_TEST_PATH, index=False)
+            pd.DataFrame(y_test).to_csv(Config.Y_TEST_PATH, index=False)
+            logging.info(f"X_test and y_test saved at {Config.X_TEST_PATH} and {Config.Y_TEST_PATH}")
+
             return history, (X_test, y_test)
         except Exception as e:
             logging.error(f"Error in training model: {e}")
             raise CustomException("Error in training model", e)
+

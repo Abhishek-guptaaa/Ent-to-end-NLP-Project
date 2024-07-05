@@ -32,7 +32,7 @@ class ModelEvaluation:
 
             # Load the test data from the CSV file
             test_data = pd.read_csv(Config.CLEANED_DATA_PATH)
-            X_test = test_data[Config.TWEET].astype(str)  # Convert to string to avoid 'float' object error
+            X_test = test_data[Config.TWEET].astype(str)  #Convert to string to avoid 'float' object error
             y_test = test_data[Config.CLASS]  # Adjust the column name
 
             # Ensure the test data is preprocessed in the same way as training data
