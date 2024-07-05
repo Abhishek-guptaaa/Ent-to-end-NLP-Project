@@ -30,7 +30,7 @@ class ModelEvaluation:
             logging.info("Starting model evaluation")
 
             # Load the test data from the CSV file
-            test_data = pd.read_csv(Config.CLEANED_DATA_PATH)
+            test_data = pd.read_csv(Config.X_TEST_PATH)
             X_test = test_data[Config.TWEET].astype(str)  #Convert to string to avoid 'float' object error
             y_test = test_data[Config.CLASS]  # Adjust the column name
 
