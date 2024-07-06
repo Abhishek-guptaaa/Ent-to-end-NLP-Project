@@ -58,8 +58,7 @@ there are two pipeline train.py, predict.py run septately
 
 	
 ## 3. Create ECR repo to store/save docker image
-    - Save the URI: 730335610052.dkr.ecr.us-east-1.amazonaws.com/hateclassification
-
+    - Save the URI: 730335610052.dkr.ecr.us-east-1.amazonaws.com/hate_classification
 	
 ## 4. Create EC2 machine (Ubuntu) 
 
