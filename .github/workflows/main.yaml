@@ -1,4 +1,3 @@
-
 name: workflow
 
 on:
@@ -6,95 +5,90 @@ on:
     branches:
       - main
   paths-ignore:
-      - 'README.md'
+    - 'README.md'
+
 permissions:
   id-token: write
   contents: read
+
 jobs:
-  intergration:
-    name: Countinous Intergration
+  integration:
+    name: Continuous Integration
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code  
+      - name: Checkout Code
         uses: actions/checkout@v3
 
       - name: Lint code
-        run : echo "Linting repository"
+        run: echo "Linting repository"
       
       - name: Run unit tests
         run: echo "Running unit tests"
 
-  build-and-puch-ecr-image:
-    name: Countinous Delivery
-    needs: intergration
+  build-and-push-ecr-image:
+    name: Continuous Delivery
+    needs: integration
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code  
+      - name: Checkout Code
         uses: actions/checkout@v3
 
-      
       - name: Install Utilities
-        run:
+        run: |
           sudo apt-get update
           sudo apt-get install -y jq unzip
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
-          aws-secret-access-key: {{secret.AWS_SECRET_ACCESS_KEY}}
-          aws-region: ${{secret.AWS_REGION}}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Login to Amazon ecr
+      - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Build, tag, and push image to Amazon ecr
+      - name: Build, tag, and push image to Amazon ECR
         id: build-image
         env:
-          ECR_REGISTRY: ${{steps.login.ecr.outputs.registry}}
-          ECR_REPOSITORY: ${{secret.ECR_REPOSITORY_NAME}}
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
           IMAGE_TAG: latest
-        run:
-          # Build a docker conatainer and 
-          # push it to ECR so that it con
-          # be deployed to ECR.
-          docker build -t $ ECR_REGISTRY/$ECR_REPOSITORY_NAME:$IMAGE_TAG .
-          docker push $ ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "::set-output name=image::#ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
-  Countinous-Deployment:
+  continuous-deployment:
     needs: build-and-push-ecr-image
-    runs-on: self-hosted  
+    runs-on: self-hosted
     steps:
-      - name: Checkout Code  
+      - name: Checkout Code
         uses: actions/checkout@v3
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
-          aws-secret-access-key: {{secret.AWS_SECRET_ACCESS_KEY}}
-          aws-region: ${{secret.AWS_REGION}}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Pull latest images
-      run:
-        docker pull ${{secret.AWS_ECR_LOGIN_URI}}/{{secret.ECR_REPOSITORY_NAME}}:latest
+        run: docker pull ${{ secrets.AWS_ECR_LOGIN_URI }}/{{ secrets.ECR_REPOSITORY_NAME }}:latest
 
-      # -name Stop and remove conatainer if Running
-      # run :
+      - name: Run Docker image to serve users
+        run: |
+          docker run -d -p 8080:8080 --name=texts \
+          -e 'AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}' \
+          -e 'AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}' ${{ secrets.AWS_ECR_LOGIN_URI }}/{{ secrets.ECR_REPOSITORY_NAME }}:latest
 
-      name: Run Dcoker image to serve users
-      run:
-        docker run -d -p 8080:8080 --name=texts -e 'AWS_ACCESS_KEY_ID=${{secret.AWS_ACCESS_KEY_ID}}' -e 'AWS_SECRET_ACCESS_KEY=${{secret.AWS_SECRET_ACCESS_KEY}}'
-    - name: Clean previous image and conatainers
-      run:
-        docker system prune -f
-
-
-
+      - name: Clean previous images and containers
+        run: docker system prune -f
 
   
