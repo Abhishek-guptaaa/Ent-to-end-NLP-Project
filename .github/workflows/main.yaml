@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-  paths-ignore:
+    paths-ignore:
     - 'README.md'
 
 permissions:
@@ -89,3 +89,9 @@ jobs:
 
       - name: Clean previous images and containers
         run: docker system prune -f
+<<<<<<< HEAD
+=======
+        
+
+  
+>>>>>>> 77d23e5b2ea26dce0901355e62217d32d1820060
