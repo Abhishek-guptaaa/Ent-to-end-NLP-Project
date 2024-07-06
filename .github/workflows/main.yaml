@@ -48,7 +48,7 @@ jobs:
 
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2.1.0 # Updated to the latest version
+        uses: aws-actions/amazon-ecr-login@v3.2.0 # Updated to the latest version
 
       - name: Build, tag, and push image to Amazon ECR
         env:
@@ -76,7 +76,7 @@ jobs:
 
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2.1.0 # Updated to the latest version
+        uses: aws-actions/amazon-ecr-login@v3.2.0 # Updated to the latest version
 
       - name: Pull latest images
         run: docker pull ${{ secrets.AWS_ECR_LOGIN_URI }}/{{ secrets.ECR_REPOSITORY_NAME }}:latest
