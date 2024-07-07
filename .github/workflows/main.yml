@@ -19,6 +19,9 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      - name: Check Node.js version
+        run: node -v
+
       - name: Lint code
         run: echo "Linting repository"
 
@@ -32,6 +35,9 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+
+      - name: Check Node.js version
+        run: node -v
 
       - name: Install Utilities
         run: |
@@ -70,6 +76,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Check Node.js version
+        run: node -v
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -96,4 +105,3 @@ jobs:
       - name: Clean previous images and containers
         run: |
           docker system prune -f
-
