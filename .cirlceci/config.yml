@@ -1,51 +1,57 @@
-# This config was automatically generated from your source code
-# Stacks detected: deps:python:.,file:setup.py:.
 version: 2.1
 orbs:
-  python: circleci/python@2
+  aws-ecr: circleci/aws-ecr@8.2.1
+  aws-cli: circleci/aws-cli@3.1.4
 jobs:
-  test-python:
-    # Install dependencies and run tests
-    docker:
-      - image: cimg/python:3.8-node
-    steps:
-      - checkout
-      - python/install-packages:
-          pkg-manager: pip-dist
-      - run:
-          name: Run tests
-          command: pytest --junitxml=junit.xml || ((($? == 5)) && echo 'Did not find any tests to run.')
-      - store_test_results:
-          path: junit.xml
-  build-package:
-    # build python package
-    docker:
-      - image: cimg/python:3.8-node
-    steps:
-      - checkout
-      - run:
-          name: Create the ~/artifacts directory if it doesn't exist
-          command: mkdir -p ~/artifacts
-      - python/dist
-      - store_artifacts:
-          path: dist
-          destination: ~/artifacts
-  deploy:
-    # This is an example deploy job, not actually used by the workflow
+  continuous-integration:
     docker:
       - image: cimg/base:stable
+    resource_class: medium
     steps:
-      # Replace this with steps to deploy to users
+      - setup_remote_docker:
+          version: 20.10.14
+          docker_layer_caching: true
+
+      - aws-ecr/build-and-push-image:
+          create-repo: true
+          dockerfile: Dockerfile
+          path: .
+          platform: linux/amd64
+          push-image: true
+          region: '${AWS_REGION}'
+          repo: demo
+          registry-id: AWS_ECR_REGISTRY_ID
+          repo-scan-on-push: true
+          tag: latest
+
+  continuous-delivery:
+    machine: true
+    resource_class: abhishke/haterunner
+    steps:
+      - aws-cli/setup
+
       - run:
-          name: deploy
-          command: '#e.g. ./deploy.sh'
+          name: auth to aws ecr
+          command: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 730335610052.dkr.ecr.us-east-1.amazonaws.com
+
+          
+          
+
+      - run:
+          name: pull image from private repository
+          command: docker pull 730335610052.dkr.ecr.us-east-1.amazonaws.com/hatedemo:latest
+          
+      
+      - run:
+          name: run image
+          command: docker run -d -p 8080:8080 730335610052.dkr.ecr.us-east-1.amazonaws.com/hatedemo:latest
 workflows:
-  build-and-test:
+  CICD:
     jobs:
-      - test-python
-      - build-package:
+      - continuous-integration
+      - continuous-delivery:
           requires:
-            - test-python
-    # - deploy:
-    #     requires:
-    #       - build-package
+          - continuous-integration
+
+
+      
